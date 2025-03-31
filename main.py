@@ -22,17 +22,18 @@ class ChatApp:
         self.page.overlay.append(self.file_picker)
         
         # Interface
-        self.name_input = ft.TextField(label="Digite seu nome", width=300, color= 'black', bgcolor= 'white')
-        self.ip_input = ft.TextField(label="Digite o IP do Servidor", width=300, color= 'black', bgcolor= 'white')
+        self.name_input = ft.TextField(label="Digite seu nome", width=300, color= 'black', bgcolor= 'white',icon= ft.Icons.PEOPLE,)
+        self.ip_input = ft.TextField(label="Digite o IP do Servidor", width=300, color= 'black', bgcolor= 'white',icon= ft.Icons.WIFI)
         self.message_input = ft.TextField(label="Mensagem", width=300, bgcolor= ft.Colors.RED, color= ft.Colors.BLACK,)
         self.chat_display = ft.Column()
-        self.host_button = ft.ElevatedButton("Host", on_click=self.start_server, bgcolor= 'black', color= 'white')
-        self.client_button = ft.ElevatedButton("Cliente", on_click=self.start_client, bgcolor= 'black', color= 'white')
-        self.send_button = ft.ElevatedButton("Enviar", on_click=self.send_message, disabled=True, bgcolor= 'white', color= 'black',)
-        self.file_button = ft.ElevatedButton("Enviar Arquivo", on_click=self.send_file, disabled=True, bgcolor= 'white', color= 'black',)
+        self.host_button = ft.ElevatedButton("Host", on_click=self.start_server, bgcolor= 'black', color= 'white',icon= ft.Icons.WIFI,)
+        self.client_button = ft.ElevatedButton("Cliente", on_click=self.start_client, bgcolor= 'black', color= 'white',icon= ft.Icons.PEOPLE,)
+        self.send_button = ft.ElevatedButton("Enviar", on_click=self.send_message, disabled=True, bgcolor= 'white', color= 'black',icon= ft.Icons.SEND,icon_color= 'black')
+        self.file_button = ft.ElevatedButton("Enviar Arquivo", on_click=self.send_file, disabled=True, bgcolor= 'white', color= 'black',icon= ft.Icons.SEND_AND_ARCHIVE,icon_color= 'Black')
         self.progress_bar = ft.ProgressBar(value=0)
         self.page.vertical_alignment = ft.MainAxisAlignment.CENTER
         self.page.horizontal_alignment = ft.CrossAxisAlignment.CENTER
+
         
         
         self.page.add(
@@ -96,6 +97,7 @@ class ChatApp:
                     client.send(message.encode())
                 except Exception as ex:
                     print(f"Erro ao enviar para cliente: {ex}")
+    
 
     def receive_messages(self, conn):
         while self.running:
@@ -110,6 +112,7 @@ class ChatApp:
                 
                 # Atualiza a interface de qualquer forma
                 self.chat_display.controls.append(ft.Text(message, color="green", size=20))
+                
                 self.page.update()
             except Exception as ex:
                 print(f"Erro ao receber mensagem: {ex}")
@@ -123,10 +126,22 @@ class ChatApp:
             if self.server_socket is not None:
                 self.broadcast(full_message)
                 self.chat_display.controls.append(ft.Text(full_message, color="green", size=20))
+
             elif self.client_socket:
                 try:
                     self.client_socket.send(full_message.encode())
                     self.chat_display.controls.append(ft.Text(full_message, color="green", size=20))
+                    self.page.add(ft.Container(
+                                width= 300,
+                                height= 100,
+                                border=20,
+                                
+                                bgcolor='red',
+                                content= ft.Text(value= full_message, color= 'black', size= 10)
+                                
+                                )
+                            
+                            )
                 except Exception as ex:
                     self.chat_display.controls.append(ft.Text(f"Erro ao enviar mensagem: {ex}", color="red"))
             self.message_input.value = ""
@@ -173,7 +188,8 @@ class ChatApp:
             self.progress_bar.value = 0.0
             self.page.update()
             
-        
+    
+    
         
 def main(page: ft.Page):
     ChatApp(page)
